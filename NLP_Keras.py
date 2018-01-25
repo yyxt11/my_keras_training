@@ -85,5 +85,53 @@ score = model.evaluate(x_train,y_train)
 # In[ ]:
 
 
+#RNN
+from keras.layers import LSTM
+
+model = Sequential()
+model.add(Embedding(vocab_size,64,input_length=maxword))
+model.add(LSTM(128,return_sequences = True))
+model.add(Dropout(0.25))
+model.add(LSTM(64,return_sequences=True))
+model.add(Dropout(0.25))
+model.add(LSTM(32))
+model.add(Dropout(0.25))
+
+model.add(Dense(1,activation='sigmoid'))
+
+model.compile(loss='binary_crossentropy',optimizer='rmsprop',metrics=['accuracy'])
+
+print(model.summary())
 
 
+#CNN
+from keras.layers import Dense,Dropout,Activation,Flatten
+from keras.layers import Conv1D,MaxPooling1D
+
+model = Sequential()
+model.add(Embedding(vocab_size,64,input_length=maxword))
+#卷积层
+model.add(Conv1D(filters=64,kernel_size=3,padding='same',activation='relu'))
+model.add(MaxPooling1D(pool_size=2))
+model.add(Dropout(0.25))
+
+model.add(Conv1D(filters=128,kernel_size=3,padding='same',activation='relu'))
+model.add(MaxPooling1D(pool_size=2))
+model.add(Dropout(0.25))
+#展平
+model.add(Flatten())
+
+#全连接
+model.add(Dense(2048,activation='relu'))
+model.add(Dense(1024,activation='relu'))
+model.add(Dense(256,activation='relu'))
+model.add(Dense(64,activation='relu'))
+model.add(Dense(16,activation='relu'))
+model.add(Dense(1,activation='sigmoid'))
+
+model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
+print(model.summary())
+
+model.fit(x_train,y_train,validation_data=(x_test,y_test),epochs=10,batch_size=512)
+scoreCNN = model.evaluate(x_test,y_test,verbose=1)
+print(scoreCNN)
